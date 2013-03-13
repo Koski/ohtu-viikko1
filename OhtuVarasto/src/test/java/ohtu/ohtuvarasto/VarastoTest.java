@@ -37,7 +37,16 @@ public class VarastoTest {
         // saldon pitäisi olla sama kun lisätty määrä
         assertEquals(8, varasto.getSaldo(), vertailuTarkkuus);
     }
-
+    @Test
+    public void liikaLisaysYlivuotaa() {
+        varasto.lisaaVarastoon(20);
+        //saldon pitäisi olla tilavuus
+        assertEquals(varasto.getTilavuus(), varasto.getSaldo(), vertailuTarkkuus);
+    }
+    @Test
+    public void liikaOttoTyhjentaa() {
+        
+    }
     @Test
     public void lisaysLisaaPienentaaVapaataTilaa() {
         varasto.lisaaVarastoon(8);
