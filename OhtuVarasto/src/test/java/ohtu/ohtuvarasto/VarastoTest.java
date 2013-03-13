@@ -41,11 +41,14 @@ public class VarastoTest {
     public void liikaLisaysYlivuotaa() {
         varasto.lisaaVarastoon(20);
         //saldon pitäisi olla tilavuus
-        assertEquals(varasto.getTilavuus(), varasto.getSaldo(), vertailuTarkkuus);
+        assertEquals(varasto.getSaldo(), varasto.getTilavuus(), vertailuTarkkuus);
     }
     @Test
     public void liikaOttoTyhjentaa() {
-        
+        varasto.lisaaVarastoon(3);
+        double saldo = varasto.getSaldo();
+        //ottamisen tulee palauttaa vain se mitä voidaan
+        assertEquals(saldo, varasto.otaVarastosta(5.0),vertailuTarkkuus);
     }
     @Test
     public void lisaysLisaaPienentaaVapaataTilaa() {
@@ -54,7 +57,18 @@ public class VarastoTest {
         // vapaata tilaa pitäisi vielä olla tilavuus-lisättävä määrä eli 2
         assertEquals(2, varasto.paljonkoMahtuu(), vertailuTarkkuus);
     }
-
+    @Test
+    public void negatiivisenLisaysEiAiheutaMuutoksia() {
+        varasto.lisaaVarastoon(2);
+        varasto.lisaaVarastoon(-4);
+        assertEquals(2, varasto.getSaldo(),vertailuTarkkuus);
+    }
+    @Test
+    public void negatiivisenOttaminenPalauttaaNollan() {
+        varasto.lisaaVarastoon(8);
+        
+        assertEquals(0.0, varasto.otaVarastosta(-4),vertailuTarkkuus);
+    }
     @Test
     public void ottaminenPalauttaaOikeanMaaran() {
         varasto.lisaaVarastoon(8);
