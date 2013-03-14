@@ -61,7 +61,7 @@ public class VarastoTest {
     public void negatiivisenLisaysEiAiheutaMuutoksia() {
         varasto.lisaaVarastoon(2);
         varasto.lisaaVarastoon(-4);
-        assertEquals(2, varasto.getSaldo(),vertailuTarkkuus);
+        assertEquals(3, varasto.getSaldo(),vertailuTarkkuus);
     }
     @Test
     public void negatiivisenOttaminenPalauttaaNollan() {
