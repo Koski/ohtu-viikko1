@@ -14,8 +14,8 @@ public class Main {
     public static void main(String[] args) {
         
         ApplicationContext ctx = new FileSystemXmlApplicationContext("src/main/resources/spring-context.xml");
-        Kirjanpito kirjanpito = ctx.getBean(Kirjanpito.class);
-        Kauppa kauppa = ctx.getBean(Kauppa.class);
+        Kirjanpito kirjanpito = (Kirjanpito)ctx.getBean("kirjanpito");
+        Kauppa kauppa = (Kauppa)ctx.getBean("kauppa");
 
 
 
