@@ -11,9 +11,6 @@ import java.util.ArrayList;
  * @author anttkari
  */
 public interface KirjanpitoInterface {
-
     ArrayList<String> getTapahtumat();
-
-    void lisaaTapahtuma(String tapahtuma);
-    
+    void lisaaTapahtuma(String tapahtuma);   
 }
