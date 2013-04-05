@@ -43,31 +43,76 @@ scenario "can login with succesfully generated account", {
 }
 
 scenario "creation fails with correct username and too short password", {
-    given 'command new user is selected'
-    when 'a valid username and too short password are entered'
-    then 'new user is not be registered to system'
+    given 'command new user is selected', {
+    	userDao = new InMemoryUserDao()
+	auth = new AuthenticationService(userDao)
+	io = new StubIO("new", "eero", "sala1" ) 
+	app = new App(io, auth)
+    }
+    when 'a valid username and too short password are entered', {
+	app.run()
+    }
+    then 'new user is not be registered to system', {
+    	io.getPrints().shouldNotHave("new user registered")
+    }
 }
 
 scenario "creation fails with correct username and pasword consisting of letters", {
-    given 'command new user is selected'
-    when 'a valid username and password consisting of letters are entered'
-    then 'new user is not be registered to system'
+    given 'command new user is selected', {
+    	userDao = new InMemoryUserDao()
+	auth = new AuthenticationService(userDao)
+	io = new StubIO("new", "eero", "salasalasala" ) 
+	app = new App(io, auth)
+    }
+    when 'a valid username and password consisting of letters are entered', {
+	app.run()
+    }
+    then 'new user is not be registered to system', {
+    	io.getPrints().shouldNotHave("new user registered")
+    }
 }
 
 scenario "creation fails with too short username and valid pasword", {
-    given 'command new user is selected'
-    when 'a too sort username and valid password are entered'
-    then 'new user is not be registered to system'
+    given 'command new user is selected', {
+    	userDao = new InMemoryUserDao()
+	auth = new AuthenticationService(userDao)
+	io = new StubIO("new", "es", "sala1kekkonen" ) 
+	app = new App(io, auth)
+    }
+    when 'a too sort username and valid password are entered', {
+	app.run()
+    }
+    then 'new user is not be registered to system', {
+    	io.getPrints().shouldNotHave("new user registered")
+    }
 }
 
 scenario "creation fails with already taken username and valid pasword", {
-    given 'command new user is selected'
-    when 'a already taken username and valid password are entered'
-    then 'new user is not be registered to system'
+    given 'command new user is selected', {
+    	userDao = new InMemoryUserDao()
+	auth = new AuthenticationService(userDao)
+	io = new StubIO("new", "pekka", "sala1kekkonen" ) 
+	app = new App(io, auth)
+    }
+    when 'a already taken username and valid password are entered', {
+	app.run()
+    }
+    then 'new user is not be registered to system', {
+    	io.getPrints().shouldNotHave("new user registered")
+    }
 }
 
 scenario "can not login with account that is not succesfully created", {
-    given 'command new user is selected'
-    when 'a invalid username/password are entered'
-    then  'new credentials do not allow logging in to system'
+    given 'command new user is selected', {
+       userDao = new InMemoryUserDao()
+       auth = new AuthenticationService(userDao)
+       io = new StubIO("new", "pekka", "sala1nen", "login", "pekka", "sala1nen") 
+       app = new App(io, auth)
+    }
+    when 'a invalid username/password are entered', {
+	app.run()
+    }
+    then  'new credentials do not allow logging in to system', {
+       io.getPrints().shouldNotHave("logged in")
+    }
 }

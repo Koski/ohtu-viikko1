@@ -8,6 +8,7 @@ public class Kauppa {
     private PankkiInterface pankki;
     private String kaupanTili;
     private ViitegeneraattoriInterface viitegeneraattori;
+    
     @Autowired
     public Kauppa(PankkiInterface pankki, VarastoInterface varasto, ViitegeneraattoriInterface viitegeneraattori) {
         this.varasto= varasto;
@@ -31,8 +32,7 @@ public class Kauppa {
     }
     public boolean tilimaksu(String nimi, String tiliNumero) {
         int viite = viitegeneraattori.uusi();
-        int summa = ostoskori.hinta();
-        
+        int summa = ostoskori.hinta();      
         return pankki.tilisiirto(nimi, viite, tiliNumero, kaupanTili, summa);
     }
 }

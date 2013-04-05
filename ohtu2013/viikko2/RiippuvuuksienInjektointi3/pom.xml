@@ -50,6 +50,10 @@
             <version>${org.springframework.version}</version>
         </dependency>   
     </dependencies>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 27d6742e9090d5601680838da6e73837b7f135de
     <build>
         <plugins>
             <plugin>

@@ -8,12 +8,11 @@ public class Main {
         ApplicationContext ctx = new FileSystemXmlApplicationContext("src/main/resources/spring-context.xml");
         Kirjanpito kirjanpito = (Kirjanpito) ctx.getBean("kirjanpito");
         Kauppa kauppa = (Kauppa) ctx.getBean("kauppa");
-        kauppa.tilimaksu("Pekka Mikkola", "1234-12345");
         kauppa.aloitaAsiointi();
         for (int i = 0; i < 24; i++) {
             kauppa.lisaaKoriin(5);
         }
-        kauppa.tilimaksu("Arto Vihavainen", "3425-1652");
+        kauppa.tilimaksu("Arto", "1111");
         for (String tapahtuma : kirjanpito.getTapahtumat()) {
             System.out.println(tapahtuma);
         }
