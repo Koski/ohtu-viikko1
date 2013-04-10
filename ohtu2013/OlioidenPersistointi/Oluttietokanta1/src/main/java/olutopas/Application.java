@@ -40,6 +40,12 @@ public class Application {
                 listBreweries();
             } else if (command.equals("5")) {
                 deleteBeer();
+            } else if (command.equals("6")) {
+                listBeers();
+            } else if (command.equals("7")) {
+                addBrewery();
+            } else if (command.equals("8")) {
+                deleteBrewery();
             } else {
                 System.out.println("unknown command");
             }
@@ -58,6 +64,9 @@ public class Application {
         System.out.println("3   add beer");
         System.out.println("4   list breweries");
         System.out.println("5   delete beer");
+        System.out.println("6   list beers");
+        System.out.println("7   add brewery");
+        System.out.println("8   delete brewery");
         System.out.println("0   quit");
         System.out.println("");
     }
@@ -74,13 +83,13 @@ public class Application {
         // luodaan olut ilman panimon asettamista
         Beer b = new Beer("Märzen");
         server.save(b);
-        
+
         // jotta saamme panimon asetettua, tulee olot lukea uudelleen kannasta
-        b = server.find(Beer.class, b.getId());        
-        brewery = server.find(Brewery.class, brewery.getId());        
+        b = server.find(Beer.class, b.getId());
+        brewery = server.find(Brewery.class, brewery.getId());
         brewery.addBeer(b);
         server.save(brewery);
-        
+
         server.save(new Brewery("Paulaner"));
     }
 
@@ -118,6 +127,22 @@ public class Application {
         for (Brewery brewery : breweries) {
             System.out.println(brewery);
         }
+    }
+
+    private void addBrewery() {
+        System.out.println("brewery name: ");
+        String name = scanner.nextLine();
+
+        Brewery brewery = server.find(Brewery.class).where().like("name", name).findUnique();
+
+        if (brewery != null) {
+            System.out.println(name + " already exists");
+        } else {
+            brewery = new Brewery(name);
+            server.save(brewery);
+            System.out.println("new brewery: " + name + " created");
+        }
+
     }
 
     private void addBeer() {
@@ -158,5 +183,29 @@ public class Application {
         server.delete(beerToDelete);
         System.out.println("deleted: " + beerToDelete);
 
+    }
+
+    private void listBeers() {
+        List<Brewery> breweries = server.find(Brewery.class).findList();
+
+        for (Brewery brewery : breweries) {
+            List<Beer> beers = brewery.getBeers();
+            for (Beer beer : beers) {
+                System.out.println(beer.getName());
+            }
+        }
+    }
+
+    private void deleteBrewery() {
+        System.out.print("brewery to delete: ");
+        String name = scanner.nextLine();
+        Brewery foundBrewery = server.find(Brewery.class).where().like("name", name).findUnique();
+
+        if (foundBrewery == null) {
+            System.out.println(name + " not found");
+        } else {
+            server.delete(foundBrewery);
+            System.out.println("brewery: " + name + " has been deleted");
+        }
     }
 }

@@ -48,7 +48,7 @@ public class Brewery {
     public void setBeers(List<Beer> biers) {
         this.beers = biers;
     }
-
+    
     @Override
     public String toString() {
         return getName() + ", beers: " + getBeers().size();
