@@ -6,12 +6,13 @@ import java.util.Scanner;
 import javax.persistence.OptimisticLockException;
 import olutopas.model.Beer;
 import olutopas.model.Brewery;
+import olutopas.model.Pub;
 import olutopas.model.Rating;
 import olutopas.model.User;
 
 public class Application {
-    
-    static User logged;
+
+//    static User logged;
     private EbeanServer server;
     private Scanner scanner = new Scanner(System.in);
 
@@ -20,6 +21,7 @@ public class Application {
     }
 
     public void run(boolean newDatabase) {
+        User user = null;
         if (newDatabase) {
             seedDatabase();
         }
@@ -29,7 +31,7 @@ public class Application {
         if (firstCommand.equals("?")) {
             createNewUser();
         } else {
-            login(firstCommand);
+            user = login(firstCommand);
         }
 
         System.out.println("Welcome!");
@@ -44,7 +46,7 @@ public class Application {
             } else if (command.equals("1")) {
                 findBrewery();
             } else if (command.equals("2")) {
-                findAndRateBeer();
+                findAndRateBeer(user);
             } else if (command.equals("3")) {
                 addBeer();
             } else if (command.equals("4")) {
@@ -60,16 +62,25 @@ public class Application {
             } else if (command.equals("9")) {
                 listUsers();
             } else if (command.equals("t")) {
-                listRatings(logged);
-            } 
-            else {
+                listRatings(user);
+            } else if (command.equals("10")) {
+                showBeers();
+            } else if (command.equals("11")) {
+                listPubsAndBeers();
+            } else if (command.equals("12")) {
+                removeBeerFromPub();
+            } else if (command.equals("13")) {
+                addBeerToPub();
+            } else if (command.equals("14")) {
+                addPub();
+            } else {
                 System.out.println("unknown command");
             }
 
             System.out.print("\npress enter to continue");
             scanner.nextLine();
         }
-        
+
         System.out.println("bye");
     }
 
@@ -85,6 +96,11 @@ public class Application {
         System.out.println("8   delete brewery");
         System.out.println("9   list users");
         System.out.println("t   list my ratings");
+        System.out.println("10  show beers in a pub");
+        System.out.println("11  list pubs and beers in them");
+        System.out.println("12  remove a beer from a pub");
+        System.out.println("13  add beer to a pub");
+        System.out.println("14  add pub to database");
         System.out.println("0   quit");
         System.out.println("");
     }
@@ -107,11 +123,25 @@ public class Application {
         brewery = server.find(Brewery.class, brewery.getId());
         brewery.addBeer(b);
         server.save(brewery);
-
+        server.save(new Pub("Pikkulintu"));
         server.save(new Brewery("Paulaner"));
     }
 
-    private void findAndRateBeer() {
+    private void addPub() {
+        System.out.print("pub to add: ");
+
+        String name = scanner.nextLine();
+
+        Pub exists = server.find(Pub.class).where().like("name", name).findUnique();
+        if (exists != null) {
+            System.out.println(name + " exists already");
+            return;
+        }
+
+        server.save(new Pub(name));
+    }
+
+    private void findAndRateBeer(User user) {
         System.out.print("beer to find: ");
         String n = scanner.nextLine();
         Beer foundBeer = server.find(Beer.class).where().like("name", n).findUnique();
@@ -130,18 +160,18 @@ public class Application {
                 quantity++;
             }
         }
-        if (quantity>0) {
-            average = ratingsCombined/quantity;
+        if (quantity > 0) {
+            average = ratingsCombined / quantity;
         }
-        
+
         System.out.println("found: " + foundBeer);
         System.out.println("  number of ratings: " + quantity + " average " + average);
         System.out.print("give rating (leave empty if not): ");
         int ratingValue = scanner.nextInt();
-        User user = logged;
+
         Rating rating = new Rating(user, foundBeer, ratingValue);
         server.save(rating);
-        
+
     }
 
     private void findBrewery() {
@@ -253,19 +283,20 @@ public class Application {
 
         User user = new User(username);
         server.save(user);
-        
-        
+
+
         System.out.println("user created");
     }
 
-    private void login(String firstCommand) {
+    private User login(String firstCommand) {
         User foundUser = server.find(User.class).where().like("username", firstCommand).findUnique();
 
         if (foundUser == null) {
             System.out.println("username " + firstCommand + " does not exist");
+            return null;
         } else {
             System.out.println("Welcome to ratebeer " + firstCommand + " !");
-            logged = foundUser;
+            return foundUser;
         }
     }
 
@@ -279,12 +310,79 @@ public class Application {
     private void listRatings(User logged) {
         List<Rating> ratings = server.find(Rating.class).findList();
         for (Rating rating : ratings) {
-            System.out.println(logged.getUsername());
-            System.out.println(rating.getUser());
             if (rating.getUser().getUsername().equals(logged.getUsername())) {
-                System.out.println(rating.getBeer().getName() + " (" + rating.getBeer().getBrewery().getName() + ") " + 
-                        rating.getRating() + " points");
+                System.out.println(rating.getBeer().getName() + " (" + rating.getBeer().getBrewery().getName() + ") "
+                        + rating.getRating() + " points");
             }
         }
+    }
+
+    private void showBeers() {
+        System.out.print("which pub: ");
+        String pub = scanner.nextLine();
+
+        Pub foundPub = server.find(Pub.class).where().like("name", pub).findUnique();
+        if (foundPub == null) {
+            System.out.println("pub doesn't exist");
+            return;
+        }
+        List<Beer> beers = foundPub.getBeers();
+        for (Beer beer : beers) {
+            System.out.println(beer.getName());
+        }
+    }
+
+    private void listPubsAndBeers() {
+        List<Pub> pubs = server.find(Pub.class).findList();
+
+        for (Pub pub : pubs) {
+            System.out.println(pub.getName());
+            for (Beer beer : pub.getBeers()) {
+                System.out.println("  -" + beer.getName());
+            }
+        }
+    }
+
+    private void removeBeerFromPub() {
+        System.out.print("which pub: ");
+        String pub = scanner.nextLine();
+        Pub foundPub = server.find(Pub.class).where().like("name", pub).findUnique();
+        if (foundPub == null) {
+            System.out.println("pub doesn't exist");
+            return;
+        }
+
+        System.out.print("which beer:");
+        String beer = scanner.nextLine();
+        Beer foundBeer = server.find(Beer.class).where().like("name", beer).findUnique();
+        if (foundBeer == null) {
+            System.out.println("Beer doesn't exist");
+            return;
+        }
+        foundPub.removeBeer(foundBeer);
+        server.save(foundPub);
+    }
+
+    private void addBeerToPub() {
+        System.out.print("beer: ");
+        String name = scanner.nextLine();
+        Beer beer = server.find(Beer.class).where().like("name", name).findUnique();
+
+        if (beer == null) {
+            System.out.println("does not exist");
+            return;
+        }
+
+        System.out.print("pub: ");
+        name = scanner.nextLine();
+        Pub pub = server.find(Pub.class).where().like("name", name).findUnique();
+
+        if (pub == null) {
+            System.out.println("does not exist");
+            return;
+        }
+
+        pub.addBeer(beer);
+        server.save(pub);
     }
 }

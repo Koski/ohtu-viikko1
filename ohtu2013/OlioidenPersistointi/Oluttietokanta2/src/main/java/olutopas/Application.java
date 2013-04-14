@@ -41,12 +41,18 @@ public class Application {
             } else if (command.equals("4")) {
                 listBreweries();
             } else if (command.equals("5")) {
-                deleteBeer();            
+                deleteBeer();
             } else if (command.equals("6")) {
-                addPub();            
+                addPub();
             } else if (command.equals("7")) {
                 addBeerToPub();
-            }  else {
+            } else if (command.equals("8")) {
+                showBeers();
+            } else if (command.equals("9")) {
+                listPubsAndBeers();
+            } else if (command.equals("10")) {
+                removeBeerFromPub();
+            } else {
                 System.out.println("unknown command");
             }
 
@@ -64,8 +70,11 @@ public class Application {
         System.out.println("3   add beer");
         System.out.println("4   list breweries");
         System.out.println("5   delete beer");
-        System.out.println("6   add pub");               
-        System.out.println("7   add beer to pub");                      
+        System.out.println("6   add pub");
+        System.out.println("7   add beer to pub");
+        System.out.println("8   show beers in a pub");
+        System.out.println("9   list pubs and beers in them");
+        System.out.println("10  delete a beer from a pub");
         System.out.println("0   quit");
         System.out.println("");
     }
@@ -219,4 +228,49 @@ public class Application {
         server.save(pub);
     }
 
+    private void showBeers() {
+        System.out.print("which pub: ");
+        String pub = scanner.nextLine();
+
+        Pub foundPub = server.find(Pub.class).where().like("name", pub).findUnique();
+        if (foundPub == null) {
+            System.out.println("pub doesn't exist");
+            return;
+        }
+        List<Beer> beers = foundPub.getBeers();
+        for (Beer beer : beers) {
+            System.out.println(beer.getName());
+        }
+    }
+
+    private void listPubsAndBeers() {
+        List<Pub> pubs = server.find(Pub.class).findList();
+
+        for (Pub pub : pubs) {
+            System.out.println(pub.getName());
+            for (Beer beer : pub.getBeers()) {
+                System.out.println("  -" + beer.getName());
+            }
+        }
+    }
+
+    private void removeBeerFromPub() {
+        System.out.print("which pub: ");
+        String pub = scanner.nextLine();
+        Pub foundPub = server.find(Pub.class).where().like("name", pub).findUnique();
+        if (foundPub==null) {
+            System.out.println("pub doesn't exist");
+            return;
+        }
+       
+        System.out.print("which beer:");
+        String beer = scanner.nextLine();
+        Beer foundBeer = server.find(Beer.class).where().like("name", beer).findUnique();
+        if (foundBeer == null) {
+            System.out.println("Beer doesn't exist");
+            return;
+        }
+        foundPub.removeBeer(foundBeer);
+        server.save(foundPub);
+    }
 }

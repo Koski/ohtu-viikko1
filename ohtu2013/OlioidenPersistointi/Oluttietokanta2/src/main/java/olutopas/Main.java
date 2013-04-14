@@ -21,7 +21,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        boolean dropAndCreateTables = true;
+        boolean dropAndCreateTables = false;
         EbeanServer server = initializeDatabase(dropAndCreateTables, Database.SQLite);
         new Application(server).run(dropAndCreateTables);
     }
